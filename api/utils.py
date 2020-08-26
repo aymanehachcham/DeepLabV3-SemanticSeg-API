@@ -14,6 +14,12 @@ def get_output_image_path(instance, filename):
     _, ext = os.path.splitext(filename)
     return 'Media/Output_image/{}{}'.format(uuid.uuid4(), ext)
 
+def modify_input_for_multiple_files(property_id, image):
+    dict = {}
+    dict['property_id'] = property_id
+    dict['image'] = image
+    return dict
+
 class RunDeepLabInference():
     def __init__(self, image_file):
         self.file_image = image_file
