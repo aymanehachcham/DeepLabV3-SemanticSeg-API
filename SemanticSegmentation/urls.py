@@ -23,5 +23,5 @@ from SemanticSegmentation import settings
 urlpatterns = [
     path('admin/', admin.site.urls),
     path(r'api/', include('api.urls')),
-    url(r'^Media/(?P<path>.*)$', serve, {'document_root': settings.MEDIA_ROOT})
+    url(r'^api/Media/(?P<path>.*)$', serve, {'document_root': settings.MEDIA_ROOT})
 ]

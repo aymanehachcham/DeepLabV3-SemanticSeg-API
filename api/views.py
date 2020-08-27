@@ -19,7 +19,7 @@ def test_api(request):
 
 class RetrieveImages(APIView):
 
-    def get(self, request):
+    def delete(self, request):
         folder_input = 'Media/Input_image/'
         for filename in os.listdir(folder_input):
             file_path = os.path.join(folder_input, filename)
