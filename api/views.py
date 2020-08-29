@@ -17,6 +17,15 @@ from rest_framework import status
 def test_api(request):
     return Response({'response':"You are successfully connected to the Semantic Segmentation API"})
 
+@api_view(['POST'])
+@never_cache
+def original_results(request):
+    file_ = request.FILES['image']
+    image = ImageSegmentation.objects.create(input_image=file_, name='image_%02d' % uuid.uuid1())
+    RunDeepLabInference(image).save_original_output()
+    serializer = OutputImageSerializer(image)
+    return Response(serializer.data, status=status.HTTP_200_OK)
+
 class RetrieveImages(APIView):
 
     def delete(self, request):

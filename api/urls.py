@@ -10,5 +10,6 @@ app_name = 'api'
 urlpatterns = [
     path(r'test', views.test_api, name='test_api_communication'),
     path(r'run/', views.RetrieveImages.as_view()),
+    path(r'original/', views.original_results, name='return_original_segmentation')
 
 ] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)   

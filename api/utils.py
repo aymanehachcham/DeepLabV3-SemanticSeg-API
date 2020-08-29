@@ -28,6 +28,14 @@ class RunDeepLabInference():
         self.sample_image = SegmentationSample(root_dir=self.base_path, image_file=self.filename, device='cuda')
         self.model = SemanticSeg(pretrained=True, device='cuda')
 
+
+    def save_original_output(self):
+        res = self.model.show_result(self.sample_image)
+        #image_to_array = Image.fromarray((res * 255).astype(np.uint8))
+        res.save(self.output_folder + self.filename)
+        self.file_image.output_image = self.output_folder + self.filename
+        self.file_image.save()
+
     def save_output(self):
         res = self.model.run_inference(self.sample_image)
         image_to_array = Image.fromarray((res * 255).astype(np.uint8))

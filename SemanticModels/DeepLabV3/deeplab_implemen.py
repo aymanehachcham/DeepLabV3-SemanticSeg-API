@@ -2,6 +2,7 @@ import torch
 import torch.nn as nn
 import numpy as np
 import cv2
+from PIL import Image
 import torchvision.models.segmentation as models
 from SemanticModels.Dataset.semantic_data import SegmentationSample
 
@@ -15,8 +16,13 @@ class SemanticSeg(nn.Module):
 
         self.model = self.load_model(pretrained)
 
-    def __getitem__(self, item):
-        return self.model
+    def forward(self, input: SegmentationSample):
+        # Run the model in the respective device:
+        with torch.no_grad():
+            output = self.model(input.processed_image)['out']
+
+        reshaped_output = torch.argmax(output.squeeze(), dim=0).detach().cpu()
+        return reshaped_output
 
     # Add the Backbone option in the parameters
     def load_model(self, pretrained=False):
@@ -30,13 +36,25 @@ class SemanticSeg(nn.Module):
         return model
 
     def run_inference(self, image: SegmentationSample):
-        # Run the model in the respective device:
-        with torch.no_grad():
-            output = self.model(image.processed_image)['out']
+        model = SemanticSeg(pretrained=True, device='cuda')
+        output = model(image)
+        return self.decode_segmentation(output, image.image_file)
 
-        reshaped_output = torch.argmax(output.squeeze(), dim=0).detach().cpu().numpy()
-        return self.decode_segmentation(reshaped_output, image.image_file)
 
+    def show_result(self, image: SegmentationSample):
+
+        input_image = Image.open(image.image_file)
+        # create a color pallette, selecting a color for each class
+        palette = torch.tensor([2 ** 25 - 1, 2 ** 15 - 1, 2 ** 21 - 1])
+        colors = torch.as_tensor([i for i in range(21)])[:, None] * palette
+        colors = (colors % 255).numpy().astype("uint8")
+
+        # plot the semantic segmentation predictions of 21 classes in each color
+        model = SemanticSeg(pretrained=True, device='cuda')
+        output_predictions = model(image)
+        res = Image.fromarray(output_predictions.byte().numpy()).resize(input_image.size)
+        res.putpalette(colors)
+        return res.convert('RGB')
 
     def decode_segmentation(self, input_image, source, number_channels=21):
 
