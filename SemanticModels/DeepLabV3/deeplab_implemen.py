@@ -24,6 +24,9 @@ class SemanticSeg(nn.Module):
         reshaped_output = torch.argmax(output.squeeze(), dim=0).detach().cpu()
         return reshaped_output
 
+    def __call__(self, *args, **kwargs):
+        return self.model
+
     # Add the Backbone option in the parameters
     def load_model(self, pretrained=False):
         if pretrained:
