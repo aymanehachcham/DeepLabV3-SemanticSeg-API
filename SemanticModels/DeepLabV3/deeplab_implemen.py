@@ -24,8 +24,6 @@ class SemanticSeg(nn.Module):
         reshaped_output = torch.argmax(output.squeeze(), dim=0).detach().cpu()
         return reshaped_output
 
-    def __call__(self, *args, **kwargs):
-        return self.model
 
     # Add the Backbone option in the parameters
     def load_model(self, pretrained=False):
@@ -39,10 +37,10 @@ class SemanticSeg(nn.Module):
         return model
 
     def run_inference(self, image: SegmentationSample):
-        model = SemanticSeg(pretrained=True, device='cuda')
-        output = model(image)
-        return self.decode_segmentation(output, image.image_file)
-
+        model = SemanticSeg(pretrained=True, device='cpu')
+        output = model(image).byte().numpy()
+        res = self.decode_segmentation(output, image.image_file)
+        return res
 
     def show_result(self, image: SegmentationSample):
 
@@ -53,7 +51,7 @@ class SemanticSeg(nn.Module):
         colors = (colors % 255).numpy().astype("uint8")
 
         # plot the semantic segmentation predictions of 21 classes in each color
-        model = SemanticSeg(pretrained=True, device='cuda')
+        model = SemanticSeg(pretrained=True, device='cpu')
         output_predictions = model(image)
         res = Image.fromarray(output_predictions.byte().numpy()).resize(input_image.size)
         res.putpalette(colors)

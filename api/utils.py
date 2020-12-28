@@ -5,6 +5,7 @@ from PIL import Image
 import numpy as np
 from SemanticModels.Dataset.semantic_data import SegmentationSample
 from SemanticModels.DeepLabV3.deeplab_implemen import SemanticSeg
+import json
 
 def get_input_image_path(instance, filename):
     _, ext = os.path.splitext(filename)
@@ -28,6 +29,9 @@ class RunDeepLabInference():
         self.sample_image = SegmentationSample(root_dir=self.base_path, image_file=self.filename, device='cuda')
         self.model = SemanticSeg(pretrained=True, device='cuda')
 
+    def return_shape(self):
+        res = self.model(self.sample_image)
+        return res.dtype
 
     def save_original_output(self):
         res = self.model.show_result(self.sample_image)
